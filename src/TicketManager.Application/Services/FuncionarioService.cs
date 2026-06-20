@@ -58,8 +58,28 @@ public class FuncionarioService
         _funcionarioRepository.Atualizar(funcionario);
     }
 
+    public Funcionario ObterFuncionarioPorId(int funcionarioId)
+    {
+        return _funcionarioRepository.ObterPorId(funcionarioId);
+    }
+    
+    public Funcionario ObterFuncionarioPorCpf(string funcionarioCPF)
+    {
+        return _funcionarioRepository.ObterPorCpf(funcionarioCPF);
+    }
+
     public IEnumerable<Funcionario> ListarTodos()
     {
         return _funcionarioRepository.ObterTodos();
+    }
+
+    public IEnumerable<Funcionario> ListarTodosAtivos()
+    {
+        return _funcionarioRepository.ObterTodosAtivos();
+    }
+
+    public IEnumerable<Funcionario> ListarTodosInativos()
+    {
+        return _funcionarioRepository.ObterTodosInativos();
     }
 }

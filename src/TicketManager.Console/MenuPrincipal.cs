@@ -1,5 +1,6 @@
 using TicketManager.Application.Services;
 using TicketManager.Domain.Exceptions;
+using TicketManager.Domain.Entities;
 
 namespace TicketManager.Console;
 
@@ -26,9 +27,9 @@ public class MenuPrincipal
         while (continuar)
         {
             System.Console.Clear();
+
             ExibirMenu();
             var opcao = System.Console.ReadLine();
-            System.Console.Clear();
 
             try
             {
@@ -39,10 +40,12 @@ public class MenuPrincipal
                     case "3": ListarFuncionarios(); break;
                     case "4": RegistrarTicket(); break;
                     case "5": EditarTicket(); break;
-                    case "6": ListarTicketsPorFuncionario(); break;
-                    case "7": EmitirRelatorio(); break;
+                    case "6": EmitirRelatorios(); break;
                     case "0": continuar = false; break;
-                    default: System.Console.WriteLine("Opção inválida."); break;
+                    default:
+                        System.Console.Write(Environment.NewLine);
+                        System.Console.WriteLine("Opção inválida.");
+                        break;
                 }
             }
             catch (DomainException ex)
@@ -50,8 +53,12 @@ public class MenuPrincipal
                 System.Console.Write(Environment.NewLine);
                 System.Console.WriteLine($"Erro: {ex.Message}");
             }
-
-            System.Console.Write(Environment.NewLine);
+            finally
+            {
+                System.Console.Write(Environment.NewLine);
+                System.Console.Write("Pressione ENTER para continuar...");
+                System.Console.ReadLine();
+            }
         }
     }
 
@@ -63,8 +70,7 @@ public class MenuPrincipal
         System.Console.WriteLine("[3] -> Listar funcionários");
         System.Console.WriteLine("[4] -> Registrar ticket entregue");
         System.Console.WriteLine("[5] -> Editar ticket entregue");
-        System.Console.WriteLine("[6] -> Listar tickets de um funcionário");
-        System.Console.WriteLine("[7] -> Emitir relatório por período");
+        System.Console.WriteLine("[6] -> Emitir Relatórios");
         System.Console.WriteLine("[0] -> Sair");
         System.Console.WriteLine("==========================");
         System.Console.Write(Environment.NewLine);
@@ -73,304 +79,349 @@ public class MenuPrincipal
 
     private void CadastrarFuncionario()
     {
-        try
-        {
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("Nome: ");
-            var nome = System.Console.ReadLine() ?? string.Empty;
+        System.Console.Clear();
 
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("CPF (somente números): ");
-            var cpf = System.Console.ReadLine() ?? string.Empty;
-            var funcionario = _funcionarioService.Cadastrar(nome, cpf);
-            System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine($"Funcionário cadastrado com Id {funcionario.Id}.");
-        }
-        catch (DomainException ex)
-        {
-            System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine(ex.Message);
-        }
-        finally
-        {
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("Pressione ENTER para continuar...");
-            System.Console.ReadLine();
-        }
+        System.Console.Write("Nome: ");
+        var nome = System.Console.ReadLine() ?? string.Empty;
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("CPF (somente números): ");
+        var cpf = System.Console.ReadLine() ?? string.Empty;
+
+        var funcionario = _funcionarioService.Cadastrar(nome, cpf);
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine($"Funcionário cadastrado com Id {funcionario.Id}.");
     }
 
     private void EditarFuncionario()
     {
-        try
-        {
-            System.Console.WriteLine(Environment.NewLine);
-            System.Console.Write("Id do funcionário: ");
-            if (!int.TryParse(System.Console.ReadLine(), out var id))
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("Id inválido.");
-                return;
-            }
+        System.Console.Clear();
 
-            if (id <= 0)
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("O Id deve ser maior que zero.");
-                return;
-            }
-
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("Novo nome: ");
-            var nome = System.Console.ReadLine() ?? string.Empty;
-
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("Novo CPF: ");
-            var cpf = System.Console.ReadLine() ?? string.Empty;
-
-            _funcionarioService.Editar(id, nome, cpf);
-
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("Funcionário ativo? (S/N): ");
-            var resposta = System.Console.ReadLine();
-
-            if (string.Equals(resposta, "S", StringComparison.OrdinalIgnoreCase))
-                _funcionarioService.Ativar(id);
-            else if (string.Equals(resposta, "N", StringComparison.OrdinalIgnoreCase))
-                _funcionarioService.Inativar(id);
-
-            System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine("Funcionário atualizado.");
-
-        }
-        catch (DomainException ex)
+        System.Console.Write("Id do funcionário: ");
+        if (!int.TryParse(System.Console.ReadLine(), out var id))
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine(ex.Message);
+            System.Console.WriteLine("Id inválido.");
+            return;
         }
-        finally
+
+        if (id <= 0)
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.Write("Pressione ENTER para continuar...");
-            System.Console.ReadLine();
+            System.Console.WriteLine("O Id deve ser maior que zero.");
+            return;
         }
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Novo nome: ");
+        var nome = System.Console.ReadLine() ?? string.Empty;
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Novo CPF: ");
+        var cpf = System.Console.ReadLine() ?? string.Empty;
+
+        _funcionarioService.Editar(id, nome, cpf);
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Funcionário ativo? (S/N): ");
+        var resposta = System.Console.ReadLine();
+
+        if (string.Equals(resposta, "S", StringComparison.OrdinalIgnoreCase))
+            _funcionarioService.Ativar(id);
+        else if (string.Equals(resposta, "N", StringComparison.OrdinalIgnoreCase))
+            _funcionarioService.Inativar(id);
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine("Funcionário atualizado.");
     }
 
     private void ListarFuncionarios()
     {
-        try
-        {
-            System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine($"{"ID",-5} {"NOME",-30} {"CPF",-15} {"SITUAÇÃO",-10}");
-            System.Console.WriteLine(new string('-', 65));
+        System.Console.Clear();
 
-            foreach (var funcionario in _funcionarioService.ListarTodos())
-            {
-                System.Console.WriteLine($"{funcionario.Id,-5} {funcionario.Nome,-30} {funcionario.Cpf,-15} {funcionario.Situacao,-10}");
-            }
-        }
-        catch (DomainException ex)
+        System.Console.WriteLine("[1] -> Listar Funcinários Ativos");
+        System.Console.WriteLine("[2] -> Editar Funcionários Inativos");
+        System.Console.WriteLine("[3] -> Listar Todos os funcionários");
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Escolha uma opção: ");
+
+        var opcao = System.Console.ReadLine();
+        switch (opcao)
         {
-            System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine(ex.Message);
+            case "1": ListarFuncionariosAtivos(); break;
+            case "2": ListarFuncionariosInativos(); break;
+            case "3": ListarTodosFuncionarios(); break;
+            default:
+                System.Console.Write(Environment.NewLine);
+                System.Console.WriteLine("Opção inválida.");
+                break;
         }
-        finally
+    }
+
+    private void ListarTodosFuncionarios()
+    {
+        System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine($"{"ID",-5} {"NOME",-30} {"CPF",-15} {"SITUAÇÃO",-10}");
+        System.Console.WriteLine(new string('-', 65));
+
+        foreach (var funcionario in _funcionarioService.ListarTodos())
         {
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("Pressione ENTER para continuar...");
-            System.Console.ReadLine();
+            System.Console.WriteLine($"{funcionario.Id,-5} {funcionario.Nome,-30} {funcionario.Cpf,-15} {funcionario.Situacao,-10}");
+        }
+    }
+
+    private void ListarFuncionariosAtivos()
+    {
+        System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine($"{"ID",-5} {"NOME",-30} {"CPF",-15} {"SITUAÇÃO",-10}");
+        System.Console.WriteLine(new string('-', 65));
+
+        foreach (var funcionario in _funcionarioService.ListarTodosAtivos())
+        {
+            System.Console.WriteLine($"{funcionario.Id,-5} {funcionario.Nome,-30} {funcionario.Cpf,-15} {funcionario.Situacao,-10}");
+        }
+    }
+
+    private void ListarFuncionariosInativos()
+    {
+        System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine($"{"ID",-5} {"NOME",-30} {"CPF",-15} {"SITUAÇÃO",-10}");
+        System.Console.WriteLine(new string('-', 65));
+
+        foreach (var funcionario in _funcionarioService.ListarTodosInativos())
+        {
+            System.Console.WriteLine($"{funcionario.Id,-5} {funcionario.Nome,-30} {funcionario.Cpf,-15} {funcionario.Situacao,-10}");
         }
     }
 
     private void RegistrarTicket()
     {
-        try
+        System.Console.Clear();
+
+        System.Console.Write("Id do funcionário: ");
+        if (!int.TryParse(System.Console.ReadLine(), out var funcionarioId))
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.Write("Id do funcionário: ");
-            if (!int.TryParse(System.Console.ReadLine(), out var funcionarioId))
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("Id inválido.");
-                return;
-            }
-
-            if (funcionarioId <= 0)
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("O Id deve ser maior que zero.");
-                return;
-            }
-
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("Quantidade de tickets: ");
-            if (!int.TryParse(System.Console.ReadLine(), out var quantidade))
-            {
-                System.Console.WriteLine("Quantidade inválida.");
-                return;
-            }
-
-            if (quantidade <= 0)
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("A Quantidade deve ser maior que zero.");
-                return;
-            }
-
-            var ticket = _ticketService.RegistrarEntrega(funcionarioId, quantidade);
-            System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine($"Ticket registrado com Id {ticket.Id}.");
+            System.Console.WriteLine("Id inválido.");
+            return;
         }
-        catch (DomainException ex)
+
+        if (funcionarioId <= 0)
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine(ex.Message);
+            System.Console.WriteLine("O Id deve ser maior que zero.");
+            return;
         }
-        finally
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Quantidade de tickets: ");
+        if (!int.TryParse(System.Console.ReadLine(), out var quantidade))
+        {
+            System.Console.WriteLine("Quantidade inválida.");
+            return;
+        }
+
+        if (quantidade <= 0)
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.Write("Pressione ENTER para continuar...");
-            System.Console.ReadLine();
+            System.Console.WriteLine("A Quantidade deve ser maior que zero.");
+            return;
         }
+
+        var ticket = _ticketService.RegistrarEntrega(funcionarioId, quantidade);
+        System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine($"Ticket registrado com Id {ticket.Id}.");
     }
 
     private void EditarTicket()
     {
-        try
+        System.Console.Clear();
+
+        System.Console.Write("Id do ticket: ");
+        if (!int.TryParse(System.Console.ReadLine(), out var id))
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.Write("Id do ticket: ");
-            if (!int.TryParse(System.Console.ReadLine(), out var id))
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("Id inválido.");
-                return;
-            }
-
-            if (id <= 0)
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("O Id deve ser maior que zero.");
-                return;
-            }
-
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("Nova quantidade: ");
-            if (!int.TryParse(System.Console.ReadLine(), out var quantidade))
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("Quantidade inválida.");
-                return;
-            }
-
-            _ticketService.EditarQuantidade(id, quantidade);
-            System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine("Ticket atualizado.");
+            System.Console.WriteLine("Id inválido.");
+            return;
         }
-        catch (DomainException ex)
+
+        if (id <= 0)
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine(ex.Message);
+            System.Console.WriteLine("O Id deve ser maior que zero.");
+            return;
         }
-        finally
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Nova quantidade: ");
+        if (!int.TryParse(System.Console.ReadLine(), out var quantidade))
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.Write("Pressione ENTER para continuar...");
-            System.Console.ReadLine();
+            System.Console.WriteLine("Quantidade inválida.");
+            return;
+        }
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Ticket ativo? (S/N): ");
+        var situacao = System.Console.ReadLine();
+
+        if (string.Equals(situacao, "S", StringComparison.OrdinalIgnoreCase))
+            _ticketService.Ativar(id);
+        else if (string.Equals(situacao, "N", StringComparison.OrdinalIgnoreCase))
+            _ticketService.Inativar(id);
+
+        _ticketService.EditarQuantidade(id, quantidade);
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine("Ticket atualizado.");
+    }
+
+    private void EmitirRelatorios()
+    {
+        System.Console.Clear();
+        System.Console.WriteLine("[1] -> Listar tickets de um funcionário");
+        System.Console.WriteLine("[2] -> Emitir relatório por período");
+        System.Console.WriteLine("[3] -> Emitir relCompleto (Funcionarios + Total de Tickets)");
+        System.Console.WriteLine("==========================");
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Escolha uma opção: ");
+
+        var opcao = System.Console.ReadLine();
+        switch (opcao)
+        {
+            case "1": EmitirRelatorioTicketsDoFuncionario(); break;
+            case "2": EmitirRelatorioFuncionariosTicketsPorPeriodo(); break;
+            case "3": EmitirRelatorioFuncionariosTicketsCompleto(); break;
+            default:
+                System.Console.Write(Environment.NewLine);
+                System.Console.WriteLine("Opção inválida.");
+                break;
         }
     }
 
-    private void ListarTicketsPorFuncionario()
+    // Emite todos os tickets de um funcionario.
+    private void EmitirRelatorioTicketsDoFuncionario()
     {
-        try
+        System.Console.Clear();
+        System.Console.Write(Environment.NewLine);
+
+        System.Console.WriteLine("[1] -> Buscar pelo ID do Funcionário");
+        System.Console.WriteLine("[2] -> Buscar pelo CPF do Funcionário");
+        System.Console.WriteLine("==========================");
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Escolha uma opção: ");
+        var opcao = System.Console.ReadLine();
+
+        Funcionario? funcionario;
+
+        if (opcao == "1")
         {
             System.Console.Write(Environment.NewLine);
             System.Console.Write("Id do funcionário: ");
-            if (!int.TryParse(System.Console.ReadLine(), out var funcionarioId))
+            if (!int.TryParse(System.Console.ReadLine(), out var funcionarioId) || funcionarioId <= 0)
             {
-                System.Console.Write(Environment.NewLine);
                 System.Console.WriteLine("Id inválido.");
                 return;
             }
 
-            if (funcionarioId <= 0)
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("O Id deve ser maior que zero.");
-                return;
-            }
-
-            if (_ticketService.ListarPorFuncionario(funcionarioId) is not null)
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine($"{"ID",-5} {"QUANTIDADE",-12} {"SITUAÇÃO",-12} {"DATA ENTREGA",-20}");
-
-                foreach (var ticket in _ticketService.ListarPorFuncionario(funcionarioId))
-                {
-                    System.Console.WriteLine(
-                        $"{ticket.Id,-5} {ticket.Quantidade,-12} {ticket.Situacao,-12} {ticket.DataEntrega,-20}");
-                }
-            }
-
+            funcionario = _funcionarioService.ObterFuncionarioPorId(funcionarioId);
         }
-        catch (DomainException ex)
+        else if (opcao == "2")
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine(ex.Message);
+            System.Console.Write("CPF do funcionário: ");
+            var cpf = System.Console.ReadLine() ?? string.Empty;
+
+            funcionario = _funcionarioService.ObterFuncionarioPorCpf(cpf);
         }
-        finally
+        else
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.Write("Pressione ENTER para continuar...");
-            System.Console.ReadLine();
+            System.Console.WriteLine("Opção inválida.");
+            return;
+        }
+
+        if (funcionario is null)
+        {
+            System.Console.Write(Environment.NewLine);
+            System.Console.WriteLine("Funcionário não encontrado.");
+            return;
+        }
+
+        var tickets = _ticketService.ListarPorFuncionario(funcionario.Id).ToList();
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine($"Exibindo Tickets Entregues do Funcionário: {funcionario.Nome}");
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine($"{"ID",-5} {"QUANTIDADE",-12} {"SITUAÇÃO",-12} {"DATA ENTREGA",-20}");
+        System.Console.WriteLine(new string('-', 60));
+        foreach (var ticket in tickets)
+        {
+            System.Console.WriteLine($"{ticket.Id,-5} {ticket.Quantidade,-12} {ticket.Situacao,-12} {ticket.DataEntrega,-20}");
         }
     }
 
-    private void EmitirRelatorio()
+    // Exibe ID, Funcionario, Situacao do Cadastro, Total de Tickets do Funcionario (Ativos e Inativos) e Total Geral de Tickets no intervalo de tempo indicado.
+    private void EmitirRelatorioFuncionariosTicketsPorPeriodo()
     {
-        try
+        System.Console.Clear();
+        System.Console.Write(Environment.NewLine);
+
+        System.Console.Write("Data inicial (dd/MM/yyyy): ");
+        if (!DateTime.TryParse(System.Console.ReadLine(), out var inicio))
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.Write("Data inicial (dd/MM/yyyy): ");
-            if (!DateTime.TryParse(System.Console.ReadLine(), out var inicio))
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("Data inválida.");
-                return;
-            }
-
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("Data final (dd/MM/yyyy): ");
-            if (!DateTime.TryParse(System.Console.ReadLine(), out var fim))
-            {
-                System.Console.Write(Environment.NewLine);
-                System.Console.WriteLine("Data inválida.");
-                return;
-            }
-
-            var relatorio = _relatorioService.GerarPorPeriodo(inicio, fim);
-
-            System.Console.WriteLine($"Relatório de {relatorio.Inicio:dd/MM/yyyy} a {relatorio.Fim:dd/MM/yyyy}");
-            System.Console.Write(Environment.NewLine);
-
-            System.Console.WriteLine($"{"FUNCIONARIO",-30} | {"TOTAL DE TICKETS",-15}");
-            System.Console.WriteLine(new string('-', 50));
-            foreach (var item in relatorio.Itens)
-            {
-                System.Console.WriteLine($"{item.NomeFuncionario,-30} | {item.TotalTickets,-15}");
-            }
-            System.Console.WriteLine(new string('-', 50));
-            System.Console.WriteLine($"TOTAL DE TICKETS: {relatorio.TotalGeral}");
+            System.Console.WriteLine("Data inválida.");
+            return;
         }
-        catch (DomainException ex)
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Data final (dd/MM/yyyy): ");
+        if (!DateTime.TryParse(System.Console.ReadLine(), out var fim))
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine(ex.Message);
+            System.Console.WriteLine("Data inválida.");
+            return;
         }
-        finally
+
+        var relatorio = _relatorioService.GerarRelatorioPorPeriodo(inicio, fim);
+
+        System.Console.WriteLine($"Relatório de {relatorio.Inicio:dd/MM/yyyy} a {relatorio.Fim:dd/MM/yyyy}");
+        System.Console.Write(Environment.NewLine);
+
+        System.Console.WriteLine($"{"ID",-10} | {"NOME",-30} | {"SITUACAO",-15} | {"TOTAL DE TICKETS",-15}");
+        System.Console.WriteLine(new string('-', 90));
+        foreach (var item in relatorio.Itens)
         {
-            System.Console.Write(Environment.NewLine);
-            System.Console.Write("Pressione ENTER para continuar...");
-            System.Console.ReadLine();
+            System.Console.WriteLine($"{item.FuncionarioId,-10} | {item.NomeFuncionario,-30} | {item.SituacaoFuncionario,-15} | {item.TotalTickets,-15}");
         }
+        System.Console.WriteLine(new string('-', 90));
+        System.Console.WriteLine($"TOTAL DE TICKETS: {relatorio.TotalGeral}");
+    }
+
+    // Exibe ID, Funcionario, Situacao do Cadastro, Total de Tickets do Funcionario (Ativos e Inativos) e o Total Geral de Tickets.
+    private void EmitirRelatorioFuncionariosTicketsCompleto()
+    {
+        System.Console.Clear();
+        System.Console.Write(Environment.NewLine);
+
+        var resultado = _relatorioService.GerarRelatorioCompleto();
+
+        System.Console.WriteLine($"{"ID",-10} | {"NOME",-30} | {"SITUACAO",-15} | {"TOTAL DE TICKETS",-15}");
+        System.Console.WriteLine(new string('-', 90));
+
+        foreach (var item in resultado.Itens)
+        {
+            System.Console.WriteLine(
+                $"{item.Funcionario.Id,-10} | {item.Funcionario.Nome,-30} | {item.Funcionario.Situacao,-15} | {item.TotalTicketsFuncionario,-15}");
+        }
+
+        System.Console.WriteLine(new string('-', 90));
+        System.Console.WriteLine($"Total geral: {resultado.TotalGeral}");
     }
 }

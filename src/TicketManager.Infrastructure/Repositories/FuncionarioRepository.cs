@@ -89,6 +89,32 @@ public class FuncionarioRepository : IFuncionarioRepository
         return registros.Select(ConverterParaDominio);
     }
 
+    public IEnumerable<Funcionario> ObterTodosAtivos()
+    {
+        const string sql = @"
+            SELECT id, nome, cpf, situacao, data_alteracao AS DataAlteracao
+            FROM funcionarios
+            WHERE situacao = 'A';";
+
+        using var conexao = _connectionFactory.CriarConexao();
+        var registros = conexao.Query<FuncionarioRegistro>(sql);
+
+        return registros.Select(ConverterParaDominio);
+    }
+
+    public IEnumerable<Funcionario> ObterTodosInativos()
+    {
+        const string sql = @"
+            SELECT id, nome, cpf, situacao, data_alteracao AS DataAlteracao
+            FROM funcionarios
+            WHERE situacao = 'I';";
+
+        using var conexao = _connectionFactory.CriarConexao();
+        var registros = conexao.Query<FuncionarioRegistro>(sql);
+
+        return registros.Select(ConverterParaDominio);
+    }
+
     private static Funcionario ConverterParaDominio(FuncionarioRegistro registro)
     {
         var situacao = registro.Situacao == "A" ? SituacaoCadastro.Ativo : SituacaoCadastro.Inativo;

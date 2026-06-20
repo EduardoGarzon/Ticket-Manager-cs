@@ -3,6 +3,8 @@ using TicketManager.Domain.Exceptions;
 
 namespace TicketManager.Domain.Entities;
 
+// Espelha as propriedades da tabela funcionários no banco de dados.
+// Implementa métodos com regras de negócio.
 public class Funcionario
 {
     public int Id { get; private set; }

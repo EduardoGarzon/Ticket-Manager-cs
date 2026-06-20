@@ -9,4 +9,6 @@ public interface IFuncionarioRepository
     Funcionario? ObterPorId(int id);
     Funcionario? ObterPorCpf(string cpf);
     IEnumerable<Funcionario> ObterTodos();
+    IEnumerable<Funcionario> ObterTodosAtivos();
+    IEnumerable<Funcionario> ObterTodosInativos();
 }

@@ -89,6 +89,18 @@ public class TicketEntregueRepository : ITicketEntregueRepository
         return registros.Select(ConverterParaDominio);
     }
 
+    public IEnumerable<TicketEntregue> ObterTodos()
+    {
+        const string sql = @"
+            SELECT id, funcionario_id AS FuncionarioId, quantidade, situacao, data_entrega AS DataEntrega
+            FROM tickets_entregues;";
+
+        using var conexao = _connectionFactory.CriarConexao();
+        var registros = conexao.Query<TicketEntregueRegistro>(sql);
+
+        return registros.Select(ConverterParaDominio);
+    }
+
     private static TicketEntregue ConverterParaDominio(TicketEntregueRegistro registro)
     {
         var situacao = registro.Situacao == "A" ? SituacaoCadastro.Ativo : SituacaoCadastro.Inativo;

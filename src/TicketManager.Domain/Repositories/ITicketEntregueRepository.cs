@@ -9,4 +9,6 @@ public interface ITicketEntregueRepository
     TicketEntregue? ObterPorId(int id);
     IEnumerable<TicketEntregue> ObterPorFuncionario(int funcionarioId);
     IEnumerable<TicketEntregue> ObterPorPeriodo(DateTime inicio, DateTime fim);
+    IEnumerable<TicketEntregue> ObterTodos();
+
 }
