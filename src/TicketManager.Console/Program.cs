@@ -3,7 +3,7 @@ using TicketManager.Console;
 using TicketManager.Infrastructure;
 using TicketManager.Infrastructure.Repositories;
 
-var connectionString = "Server=localhost;Port=3306;Database=ticket_manager_db;User=root;Password=Sinclair3131@;";
+var connectionString = "Server=localhost;Port=3306;Database=ticket_manager_db;User=root;Password=SUA_SENHA_AQUI";
 
 var connectionFactory = new MySqlConnectionFactory(connectionString);
 var funcionarioRepository = new FuncionarioRepository(connectionFactory);
