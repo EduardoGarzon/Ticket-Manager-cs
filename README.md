@@ -2,8 +2,6 @@
 
 Sistema de gestão de tickets de refeição em C# (.NET 10), com arquitetura em camadas (Domain, Application, Infrastructure, Console), persistência em MySQL via Dapper e testes automatizados com xUnit/Moq.
 
-> Projeto desenvolvido como teste técnico para uma vaga de desenvolvedor júnior C#.
-
 ## Sumário
 
 - [Sobre o projeto](#sobre-o-projeto)
