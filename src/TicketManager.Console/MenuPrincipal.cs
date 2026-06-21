@@ -97,19 +97,49 @@ public class MenuPrincipal
     private void EditarFuncionario()
     {
         System.Console.Clear();
+        System.Console.Write(Environment.NewLine);
 
-        System.Console.Write("Id do funcionário: ");
-        if (!int.TryParse(System.Console.ReadLine(), out var id))
+        System.Console.WriteLine("[1] -> Buscar pelo ID do Funcionário");
+        System.Console.WriteLine("[2] -> Buscar pelo CPF do Funcionário");
+        System.Console.WriteLine("======================================");
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Escolha uma opção: ");
+        var opcao = System.Console.ReadLine();
+
+        Funcionario? funcionario;
+
+        if (opcao == "1")
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine("Id inválido.");
+            System.Console.Write("Id do funcionário: ");
+            if (!int.TryParse(System.Console.ReadLine(), out var funcionarioId) || funcionarioId <= 0)
+            {
+                System.Console.WriteLine("Id inválido.");
+                return;
+            }
+
+            funcionario = _funcionarioService.ObterFuncionarioPorId(funcionarioId);
+        }
+        else if (opcao == "2")
+        {
+            System.Console.Write(Environment.NewLine);
+            System.Console.Write("CPF do funcionário: ");
+            var funcionarioCpf = System.Console.ReadLine() ?? string.Empty;
+
+            funcionario = _funcionarioService.ObterFuncionarioPorCpf(funcionarioCpf);
+        }
+        else
+        {
+            System.Console.Write(Environment.NewLine);
+            System.Console.WriteLine("Opção inválida.");
             return;
         }
 
-        if (id <= 0)
+        if (funcionario is null)
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine("O Id deve ser maior que zero.");
+            System.Console.WriteLine("Funcionário não encontrado.");
             return;
         }
 
@@ -121,16 +151,16 @@ public class MenuPrincipal
         System.Console.Write("Novo CPF: ");
         var cpf = System.Console.ReadLine() ?? string.Empty;
 
-        _funcionarioService.Editar(id, nome, cpf);
+        _funcionarioService.Editar(funcionario.Id, nome, cpf);
 
         System.Console.Write(Environment.NewLine);
         System.Console.Write("Funcionário ativo? (S/N): ");
         var resposta = System.Console.ReadLine();
 
         if (string.Equals(resposta, "S", StringComparison.OrdinalIgnoreCase))
-            _funcionarioService.Ativar(id);
+            _funcionarioService.Ativar(funcionario.Id);
         else if (string.Equals(resposta, "N", StringComparison.OrdinalIgnoreCase))
-            _funcionarioService.Inativar(id);
+            _funcionarioService.Inativar(funcionario.Id);
 
         System.Console.Write(Environment.NewLine);
         System.Console.WriteLine("Funcionário atualizado.");
@@ -199,38 +229,61 @@ public class MenuPrincipal
     private void RegistrarTicket()
     {
         System.Console.Clear();
+        System.Console.Write(Environment.NewLine);
 
-        System.Console.Write("Id do funcionário: ");
-        if (!int.TryParse(System.Console.ReadLine(), out var funcionarioId))
+        System.Console.WriteLine("[1] -> Buscar pelo ID do Funcionário");
+        System.Console.WriteLine("[2] -> Buscar pelo CPF do Funcionário");
+        System.Console.WriteLine("======================================");
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.Write("Escolha uma opção: ");
+        var opcao = System.Console.ReadLine();
+
+        Funcionario? funcionario;
+
+        if (opcao == "1")
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine("Id inválido.");
+            System.Console.Write("Id do funcionário: ");
+            if (!int.TryParse(System.Console.ReadLine(), out var funcionarioId) || funcionarioId <= 0)
+            {
+                System.Console.WriteLine("Id inválido.");
+                return;
+            }
+
+            funcionario = _funcionarioService.ObterFuncionarioPorId(funcionarioId);
+        }
+        else if (opcao == "2")
+        {
+            System.Console.Write(Environment.NewLine);
+            System.Console.Write("CPF do funcionário: ");
+            var funcionarioCpf = System.Console.ReadLine() ?? string.Empty;
+
+            funcionario = _funcionarioService.ObterFuncionarioPorCpf(funcionarioCpf);
+        }
+        else
+        {
+            System.Console.Write(Environment.NewLine);
+            System.Console.WriteLine("Opção inválida.");
             return;
         }
 
-        if (funcionarioId <= 0)
+        if (funcionario is null)
         {
             System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine("O Id deve ser maior que zero.");
+            System.Console.WriteLine("Funcionário não encontrado.");
             return;
         }
 
         System.Console.Write(Environment.NewLine);
         System.Console.Write("Quantidade de tickets: ");
-        if (!int.TryParse(System.Console.ReadLine(), out var quantidade))
+        if (!int.TryParse(System.Console.ReadLine(), out var quantidade) || quantidade <= 0)
         {
             System.Console.WriteLine("Quantidade inválida.");
             return;
         }
 
-        if (quantidade <= 0)
-        {
-            System.Console.Write(Environment.NewLine);
-            System.Console.WriteLine("A Quantidade deve ser maior que zero.");
-            return;
-        }
-
-        var ticket = _ticketService.RegistrarEntrega(funcionarioId, quantidade);
+        var ticket = _ticketService.RegistrarEntrega(funcionario.Id, quantidade);
         System.Console.Write(Environment.NewLine);
         System.Console.WriteLine($"Ticket registrado com Id {ticket.Id}.");
     }
@@ -281,10 +334,10 @@ public class MenuPrincipal
     private void EmitirRelatorios()
     {
         System.Console.Clear();
-        System.Console.WriteLine("[1] -> Listar tickets de um funcionário");
-        System.Console.WriteLine("[2] -> Emitir relatório por período");
-        System.Console.WriteLine("[3] -> Emitir relCompleto (Funcionarios + Total de Tickets)");
-        System.Console.WriteLine("==========================");
+        System.Console.WriteLine("[1] -> Emitir tickets de um funcionário");
+        System.Console.WriteLine("[2] -> Emitir relatório Completo por período (Funcionarios + Total de Tickets + Total Geral)");
+        System.Console.WriteLine("[3] -> Emitir relatório Completo (Funcionarios + Total de Tickets + Total Geral)");
+        System.Console.WriteLine("=============================================================================================");
 
         System.Console.Write(Environment.NewLine);
         System.Console.Write("Escolha uma opção: ");
@@ -391,9 +444,10 @@ public class MenuPrincipal
 
         var relatorio = _relatorioService.GerarRelatorioPorPeriodo(inicio, fim);
 
-        System.Console.WriteLine($"Relatório de {relatorio.Inicio:dd/MM/yyyy} a {relatorio.Fim:dd/MM/yyyy}");
         System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine($"Relatório de {relatorio.Inicio:dd/MM/yyyy} a {relatorio.Fim:dd/MM/yyyy}");
 
+        System.Console.Write(Environment.NewLine);
         System.Console.WriteLine($"{"ID",-10} | {"NOME",-30} | {"SITUACAO",-15} | {"TOTAL DE TICKETS",-15}");
         System.Console.WriteLine(new string('-', 90));
         foreach (var item in relatorio.Itens)
@@ -412,7 +466,10 @@ public class MenuPrincipal
 
         var resultado = _relatorioService.GerarRelatorioCompleto();
 
-        System.Console.WriteLine($"{"ID",-10} | {"NOME",-30} | {"SITUACAO",-15} | {"TOTAL DE TICKETS",-15}");
+        System.Console.WriteLine($"Relatório completo do sistema.");
+
+        System.Console.Write(Environment.NewLine);
+        System.Console.WriteLine($"{"ID",-10} | {"NOME",-30} | {"CADASTRO",-15} | {"TOTAL DE TICKETS",-15}");
         System.Console.WriteLine(new string('-', 90));
 
         foreach (var item in resultado.Itens)
@@ -422,6 +479,6 @@ public class MenuPrincipal
         }
 
         System.Console.WriteLine(new string('-', 90));
-        System.Console.WriteLine($"Total geral: {resultado.TotalGeral}");
+        System.Console.WriteLine($"TOTAL DE TICKETS: {resultado.TotalGeral}");
     }
 }
