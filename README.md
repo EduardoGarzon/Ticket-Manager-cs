@@ -51,11 +51,9 @@ Opcional, mas recomendado:
 Clone o repositório e entre na pasta:
 
 ```bash
-git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
-cd SEU-REPOSITORIO
+git clone https://github.com/EduardoGarzon/Ticket-Manager-cs.git
+cd Ticket-Manager-cs
 ```
-
-> Substitua a URL acima pela URL real deste repositório.
 
 ## Configurando o banco de dados
 
@@ -100,8 +98,6 @@ CREATE TABLE tickets_entregues (
 var connectionString = "Server=localhost;Port=3306;Database=ticket_manager_db;User=root;Password=SUA_SENHA_AQUI;";
 ```
 
-> ⚠️ **Atenção:** se este repositório for público, evite commitar uma senha real nesse arquivo. Troque por um valor genérico antes de subir suas alterações ou, melhor ainda, mova a string de conexão para uma variável de ambiente ou um arquivo de configuração incluído no `.gitignore`.
-
 ## Como executar o programa
 
 Na pasta raiz do projeto, execute:
@@ -123,8 +119,6 @@ dotnet test
 ## Documentação completa
 
 A documentação técnica completa do projeto — arquitetura, decisões técnicas, modelagem do banco de dados, casos de uso e próximos passos — está disponível em [`docs/documentacao.pdf`](./docs/documentacao.pdf).
-
-> Ajuste o caminho acima conforme o local onde o PDF compilado for salvo no repositório.
 
 ## Estrutura do projeto
 
