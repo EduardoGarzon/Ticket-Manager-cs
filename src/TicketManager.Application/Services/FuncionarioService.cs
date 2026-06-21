@@ -58,12 +58,12 @@ public class FuncionarioService
         _funcionarioRepository.Atualizar(funcionario);
     }
 
-    public Funcionario ObterFuncionarioPorId(int funcionarioId)
+    public Funcionario? ObterFuncionarioPorId(int funcionarioId)
     {
         return _funcionarioRepository.ObterPorId(funcionarioId);
     }
-    
-    public Funcionario ObterFuncionarioPorCpf(string funcionarioCPF)
+
+    public Funcionario? ObterFuncionarioPorCpf(string funcionarioCPF)
     {
         return _funcionarioRepository.ObterPorCpf(funcionarioCPF);
     }

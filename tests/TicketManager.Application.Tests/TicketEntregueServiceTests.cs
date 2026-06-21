@@ -27,16 +27,13 @@ public class TicketEntregueServiceTests
     [Fact]
     public void RegistrarEntrega_FuncionarioAtivoEQuantidadeValida_CriaERetornaTicket()
     {
-        // Arrange
         var funcionario = Funcionario.Reconstituir(1, "Maria", "12345678901", SituacaoCadastro.Ativo, DateTime.Now);
         _mockFuncionarioRepo.Setup(r => r.ObterPorId(1)).Returns(funcionario);
         _mockTicketRepo.Setup(r => r.Adicionar(It.IsAny<TicketEntregue>()))
                        .Callback<TicketEntregue>(t => t.DefinirId(10));
 
-        // Act
         var ticket = _service.RegistrarEntrega(1, 5);
 
-        // Assert
         Assert.Equal(1, ticket.FuncionarioId);
         Assert.Equal(5, ticket.Quantidade);
         Assert.Equal(SituacaoCadastro.Ativo, ticket.Situacao);
@@ -56,11 +53,9 @@ public class TicketEntregueServiceTests
     [Fact]
     public void RegistrarEntrega_FuncionarioInativo_LancaDomainException()
     {
-        // Arrange: funcionário existe mas está inativo
         var inativo = Funcionario.Reconstituir(1, "Maria", "12345678901", SituacaoCadastro.Inativo, DateTime.Now);
         _mockFuncionarioRepo.Setup(r => r.ObterPorId(1)).Returns(inativo);
 
-        // Act & Assert
         var ex = Assert.Throws<DomainException>(() => _service.RegistrarEntrega(1, 5));
         Assert.Equal("Não é possível registrar tickets para um funcionário inativo.", ex.Message);
         _mockTicketRepo.Verify(r => r.Adicionar(It.IsAny<TicketEntregue>()), Times.Never);
@@ -73,14 +68,11 @@ public class TicketEntregueServiceTests
     [Fact]
     public void EditarQuantidade_TicketExistente_AtualizaEChamaRepositorio()
     {
-        // Arrange
         var ticket = TicketEntregue.Reconstituir(1, 1, 5, SituacaoCadastro.Ativo, DateTime.Now);
         _mockTicketRepo.Setup(r => r.ObterPorId(1)).Returns(ticket);
 
-        // Act
         _service.EditarQuantidade(1, 10);
 
-        // Assert
         Assert.Equal(10, ticket.Quantidade);
         _mockTicketRepo.Verify(r => r.Atualizar(ticket), Times.Once);
     }
@@ -119,5 +111,36 @@ public class TicketEntregueServiceTests
 
         Assert.Equal(SituacaoCadastro.Ativo, ticket.Situacao);
         _mockTicketRepo.Verify(r => r.Atualizar(ticket), Times.Once);
+    }
+
+    // -------------------------
+    // ListarPorFuncionario
+    // -------------------------
+
+    [Fact]
+    public void ListarPorFuncionario_FuncionarioExistente_RetornaTicketsDoRepositorio()
+    {
+        var funcionario = Funcionario.Reconstituir(1, "Maria", "12345678901", SituacaoCadastro.Ativo, DateTime.Now);
+        _mockFuncionarioRepo.Setup(r => r.ObterPorId(1)).Returns(funcionario);
+
+        var tickets = new List<TicketEntregue>
+        {
+            TicketEntregue.Reconstituir(1, 1, 5, SituacaoCadastro.Ativo, DateTime.Now)
+        };
+        _mockTicketRepo.Setup(r => r.ObterPorFuncionario(1)).Returns(tickets);
+
+        var resultado = _service.ListarPorFuncionario(1);
+
+        Assert.Equal(tickets, resultado);
+    }
+
+    [Fact]
+    public void ListarPorFuncionario_FuncionarioNaoEncontrado_LancaDomainException()
+    {
+        _mockFuncionarioRepo.Setup(r => r.ObterPorId(99)).Returns((Funcionario?)null);
+
+        Assert.Throws<DomainException>(() => _service.ListarPorFuncionario(99));
+
+        _mockTicketRepo.Verify(r => r.ObterPorFuncionario(It.IsAny<int>()), Times.Never);
     }
 }
